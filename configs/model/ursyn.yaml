@@ -1,0 +1,33 @@
+name: URSyn
+
+model:
+  _target_: pl_modules.ursyn.URSyn
+  encoder: # Multi-modal model to be trained
+    _target_: models.mmfusion.MMFusion
+    embed_dim: 40
+    fusion: "concat"
+    pool: "cls"
+    n_heads: 8
+    n_layers: 1
+    add_bias_kv: False
+    dropout: 0
+    enable_ursyn_factors: true
+
+  projection: # Projection head
+    _target_: pl_modules.ursyn.URSyn._build_mlp
+    in_dim: ${model.model.encoder.embed_dim} # MM encoder dimension
+    mlp_dim: 512 # Hidden dim of MLP projection head
+    out_dim: 256 # Output embed dim of MLP projection head
+
+  loss_kwargs: # URSyn loss
+    temperature: 0.1 # Temperature in the objective function
+    epsilon: 0.2 
+    entropy_weight: 0.01 # Weight for the entropy regularization term
+    align_weight: 1.0
+    lambda_repel: 50
+    lambda_R: 1
+    lambda_UR_dis: 1
+    lambda_S: 1
+    lambda_S_dis: 1
+    weights: [1,1,1,1,1]
+  

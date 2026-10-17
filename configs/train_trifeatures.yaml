@@ -1,0 +1,62 @@
+seed: 42
+mode: "train"
+
+exp_name: null
+ckpt_path: null
+
+trainer:
+  _target_: pytorch_lightning.Trainer
+  accelerator: "auto" # Accelerator given to pytorch-lightning Trainer (eg `cpu` or `gpu`)
+  strategy: "ddp"
+  devices: "1"
+  num_nodes: 1 # Number of distributed nodes
+  max_epochs: 100
+  default_root_dir: "."
+  use_distributed_sampler: false
+  deterministic: false
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 1
+  inference_mode: false # avoid weird bugs during linear probing
+
+optim:
+  lr: 3e-4
+  weight_decay: 1e-4
+
+# Define default visual encoders for the bimodal trifeatures dataset
+model:
+  model:
+    encoder:
+      embed_dim: 512
+  encoders:
+    - _target_: models.alexnet.AlexNetEncoder # small AlexNet encoder
+      latent_dim: 256
+      dropout: 0.5
+      global_pool: ""
+    - _target_: models.alexnet.AlexNetEncoder # small AlexNet encoder
+      latent_dim: 256
+      dropout: 0.5
+      global_pool: ""
+
+  # MMFusion adapters
+  adapters:
+    - _target_: models.input_adapters.PatchedInputAdapter
+      num_channels: 256 # nb of feature maps
+      stride_level: 1
+      patch_size_full: 1
+      dim_tokens: 512
+      image_size: 6 # size of feature maps
+    - _target_: models.input_adapters.PatchedInputAdapter
+      num_channels: 256 # nb of feature maps
+      stride_level: 1
+      patch_size_full: 1
+      dim_tokens: 512
+      image_size: 6 # size of feature maps
+
+defaults:
+  - data: trifeatures
+  - model: ursyn
+  - _self_
+
+hydra:
+  job:
+    chdir: false

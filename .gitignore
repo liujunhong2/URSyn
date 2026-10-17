@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Hydra / logs / checkpoints
+outputs/
+multirun/
+logs/
+*.log
+lightning_logs/
+checkpoints/
+*.ckpt
+
+# Experiment results
+URSyn/
+test_results/
